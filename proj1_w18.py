@@ -9,7 +9,7 @@ class Media:
 			self.process_json(json)
 
 	def process_json(self, json):
-			self.title = json['trackCensoredName']
+			self.title = json['collectionName']
 			self.author = json['artistName']
 			self.release_year = json['releaseDate']
 
@@ -26,11 +26,10 @@ class Song(Media):
 			self.genre = genre
 			self.track_length = track_length
 		else:
-			self.process_json(json)
-
-	def process_json(self, json):
-		self.genre = json['primaryGenreName']
-		self.track_length = json['trackTimeMillis']
+			super().process_json(json)
+			self.genre = json['primaryGenreName']
+			self.track_length = json['trackTimeMillis']
+		
 
 	def __str__(self):
 		return super().__str__() + " [" + self.genre + "]"
@@ -45,12 +44,10 @@ class Movie(Media):
 			self.rating = rating
 			self.movie_length = movie_length
 		else:
-			self.process_json(json)
-
-	def process_json(self, json):
-		self.rating = json['contentAdvisoryRating']
-		self.movie_length = json['trackTimeMillis']
-
+			super().process_json(json)
+			self.rating = json['contentAdvisoryRating']
+			self.movie_length = json['trackTimeMillis']
+		
 
 	def __str__(self):
 		return super().__str__() + " [" + self.rating + "]"
