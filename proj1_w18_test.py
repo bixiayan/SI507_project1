@@ -3,17 +3,46 @@ import proj1_w18 as proj1
 import json
 import requests
 
-def request_form_API():
-    base_people_url = 'https://itunes.apple.com/search?parameterkeyvalue'
-    json_string = requests.get(base_people_url).text
-    results_list = json.loads(json_string)
+####################################################################
+####################### part 1 and part 2 ##########################
+####################################################################
+
+def request_form_API(words, limit, entity):
+    # base_people_url = 'https://itunes.apple.com/search?term=jack+johnson&limit=25'
+    base_people_url = 'https://itunes.apple.com/search?term=' + words + '&limit=' + str(limit) + 'entity=' + entity
+    json_string = requests.get(base_people_url)
+    return json_string.json()['results']
 
 def load_json():
     with open('sample_json.json') as json_data:
         json_dict = json.load(json_data)
         return json_dict
 
+def get_list_of_json():
+    jsons = []
+    json_1 = request_form_API("baby", 1, "")
+    json_2 = request_form_API("love", 1)
+    json_3 = request_form_API("moana", 1， "feature-movie")
+    json_4 = request_form_API("helter skelter", 1)
+    json_5 = request_form_API("&@#!$", 1)
+    json_6 = request_form_API("", 1)
+    jsons.append(json_1)
+    jsons.append(json_2)
+    jsons.append(json_3)
+    jsons.append(json_4)
+    jsons.append(json_5)
+    jsons.append(json_6)
+    return jsons
+
+def main():
+    jsons = get_list_of_json()
+    for json in jsons:
+        
+
 json_dict = load_json()
+####################################################################
+####################### part 1 and part 2 ##########################
+####################################################################
 class TestMedia(unittest.TestCase):
     m1 = proj1.Media()
     m2 = proj1.Media("1999", "Prince")
@@ -117,4 +146,5 @@ class TestMovie(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    main()
     unittest.main()
