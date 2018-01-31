@@ -16,7 +16,6 @@ def request_form_API(words, limit, entity):
 def load_json():
     with open('sample_json.json') as json_data:
         json_dict = json.load(json_data)
-        print("running")
         return json_dict
 
 def get_list_of_json():
