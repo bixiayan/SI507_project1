@@ -38,9 +38,8 @@ json_dict = load_json()
 
 def main():
     jsons = get_list_of_json()
-    # print(len(jsons)) 
     for json in jsons:
-        # print(json)
+        # initialize objects form json retrieved from itunes store
         if json != None:
             for info in json:
                 m = proj1.Media()
