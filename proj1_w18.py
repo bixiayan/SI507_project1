@@ -9,9 +9,12 @@ class Media:
 			self.process_json(json)
 
 	def process_json(self, json):
+		if json['wrapperType'] == "track":
+			self.title = json['trackName']
+		else:
 			self.title = json['collectionName']
-			self.author = json['artistName']
-			self.release_year = json['releaseDate']
+		self.author = json['artistName']
+		self.release_year = json['releaseDate']
 
 	def __str__(self):
 		return self.title + " by " + self.author + " (" + self.release_year + ")"
@@ -20,13 +23,15 @@ class Media:
 		return 0
 
 class Song(Media):
-	def __init__(self, title="No Title", author="No Author", release_year="No year", genre="No genre", track_length=0, json=None):
+	def __init__(self, title="No Title", author="No Author", release_year="No year", album="No album", genre="No genre", track_length=0, json=None):
 		if json == None:
 			super().__init__(title, author, release_year)
+			self.album = album
 			self.genre = genre
 			self.track_length = track_length
 		else:
 			super().process_json(json)
+			self.album = json['collectionName']
 			self.genre = json['primaryGenreName']
 			self.track_length = json['trackTimeMillis']
 		
