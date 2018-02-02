@@ -2,14 +2,16 @@ import unittest
 import proj1_w18 as proj1
 import json
 import requests
+import webbrowser
+
 
 ####################################################################
 ####################### part 1 and part 2 ##########################
 ####################################################################
 
-def request_form_API(words, entity, limit):
+def request_form_API(words, limit):
     # base_people_url = 'https://itunes.apple.com/search?term=jack+johnson&limit=25'
-    base_people_url = 'https://itunes.apple.com/search?term=' + words + '&limit=' + str(limit) + 'entity=' + entity
+    base_people_url = 'https://itunes.apple.com/search?term=' + words + '&limit=' + str(limit) 
     json_string = requests.get(base_people_url)
     return json_string.json()['results']
 
@@ -20,12 +22,12 @@ def load_json():
 
 def get_list_of_json():
     jsons = []
-    json_1 = request_form_API("baby", "song", 2)
-    json_2 = request_form_API("love", "feature-movie", 1)
-    json_3 = request_form_API("moana", "", 1)
-    json_4 = request_form_API("helter skelter", "song", 1)
-    json_5 = request_form_API("&@#!$","", 1)
-    json_6 = request_form_API("", "", 1)
+    json_1 = request_form_API("baby", 5)
+    json_2 = request_form_API("love", 5)
+    json_3 = request_form_API("moana", 5)
+    json_4 = request_form_API("helter skelter", 5)
+    json_5 = request_form_API("&@#!$", 5)
+    json_6 = request_form_API("", 5)
     jsons.append(json_1)
     jsons.append(json_2)
     jsons.append(json_3)
@@ -36,21 +38,86 @@ def get_list_of_json():
 
 json_dict = load_json()
 
-def main():
+class TestJson(unittest.TestCase):
     jsons = get_list_of_json()
-    for json in jsons:
-        # initialize objects form json retrieved from itunes store
-        if json != None:
-            for info in json:
-                m = proj1.Media()
-                if 'kind' in info:
-                    if info['kind'] == "song":
-                        m = proj1.Song(json=info)
-                    elif info['kind'] == "feature-movie":
-                        m = proj1.Movie(json=info)
+    def testConstructor(self):
+        for json in self.jsons:
+            # Test if number of results is within range
+            self.assertEqual(len(json) <= 5, True)
+            # initialize objects form json retrieved from itunes store
+            if json != None:
+                for info in json:
+                    m = proj1.Media()
+                    if 'kind' in info:
+                        if info['kind'] == "song":
+                            m = proj1.Song(json=info)
+                        elif info['kind'] == "feature-movie":
+                            m = proj1.Movie(json=info)
+                    else:
+                        m = proj1.Media(json=info)
+
+
+def main():
+    # ask user for input
+    limit = 100
+    keyword = input('\n' + "Entere a serach term, or 'exit' to quit: ")
+    index = {}
+    json_index = {}
+    count = 1
+    while True:
+        if keyword.isdigit():
+            if count == 1 or int(keyword) >= count:
+                keyword = input('\n' + "Entere a number for more info, or another search term, or exit: ")
+            else:
+                term = index[keyword]
+                print ("Launching...")
+                if term['wrapperType'] == "audiobook":
+                    webbrowser.open(term['collectionViewUrl']) 
                 else:
-                    m = proj1.Media(json=info)
-                print (m.__str__())
+                    webbrowser.open(term['trackViewUrl']) 
+                keyword = input('\n' + "Entere a number for more info, or another search term, or exit: ") 
+        elif keyword == "exit":
+            print('\n' + "Bye !")
+            break
+        else:
+            index = {}
+            json = request_form_API(keyword, limit)
+            if json == None:
+                print('\n' + "Sorry, we didn't found anything that matches...")
+                keyword = input('\n' + "Entere a serach term, or 'exit' to quit: ")
+            else:
+                return_list = {"SONGS": [], "MOVIES": [], "OTHER MEDIA": []}
+                m = proj1.Media()
+                for info in json:
+                    if 'kind' in info:
+                        if info['kind'] == "song":
+                            m = proj1.Song(json=info)
+                            return_list["SONGS"].append(m)
+                        elif info['kind'] == "feature-movie":
+                            m = proj1.Movie(json=info)
+                            return_list["MOVIES"].append(m)
+                    else:
+                        m = proj1.Media(json=info)
+                        return_list["OTHER MEDIA"].append(m)
+                    json_index[m] = info
+                count = 1
+                print('\n' + "SONGS: ")
+                for key in return_list["SONGS"]:
+                    print(str(count) + '. ' + key.__str__())
+                    index[str(count)] = json_index[key]
+                    count += 1
+                print('\n' + "MOVIES: ")
+                for key in return_list["MOVIES"]:
+                    print(str(count) + '. ' +  key.__str__())
+                    index[str(count)] = json_index[key]
+                    count += 1
+                print('\n' + "OTHER MEDIA: ")
+                for key in return_list["OTHER MEDIA"]:
+                    print(str(count) + '. ' +  key.__str__())
+                    index[str(count)] = json_index[key]
+                    count += 1
+                keyword = input('\n' + "Entere a number for more info, or another search term, or exit: ")        
+
 
 
         
